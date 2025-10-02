@@ -75,7 +75,7 @@
 <script setup>
 import {onMounted, ref, watch} from 'vue'
 import {useStatusStore} from '../store/status'
-import SyncEndpoints from './syncEndpoints.vue'
+// import SyncEndpoints from './syncEndpoints.vue'
 import { storeToRefs } from 'pinia'
 import {animateText} from '../utils/animateText.js'
 
