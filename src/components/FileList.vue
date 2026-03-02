@@ -21,7 +21,7 @@
         @click="toggleSelectMode"
         :disabled="fileList.length === 0 || loading"
       >
-        {{ selectMode && fileList.length ? 'Quit Selection Mode' : 'Selection Mode' }}
+        {{ selectMode && fileList.length ? "Quit Selection Mode" : "Selection Mode" }}
       </button>
 
       <div v-show="selectMode" class="w-full flex space-x-2 mt-2">
@@ -45,7 +45,10 @@
     </div>
 
     <div>
-      <div class="text-xs" v-show="!loading && fileList.length === 0 && !loadDataErrorText">
+      <div
+        class="text-xs"
+        v-show="!loading && fileList.length === 0 && !loadDataErrorText"
+      >
         Seems like we got nothing here.
       </div>
       <div class="text-red-500 text-xs" v-show="loadDataErrorText">
@@ -54,9 +57,9 @@
         <pre class="mt-2"><code class="text-xs">{{ loadDataErrorStack }}</code></pre>
       </div>
       <div class="text-xs mb-4" v-show="fileList.length > 0">
-        <span class="font-bold">{{ globalCursor ? 'More than' : '' }}</span> {{ fileList.length }} file{{
-          fileList.length === 1 ? '' : 's'
-        }}, {{ parseByteSize(allFileSize) }} total.
+        <span class="font-bold">{{ globalCursor ? "More than" : "" }}</span>
+        {{ fileList.length }} file{{ fileList.length === 1 ? "" : "s" }},
+        {{ parseByteSize(allFileSize) }} total.
         <div class="inline-flex space-x-2">
           <button
             class="inline outline px-2 py-1 text-xs w-auto mb-0"
@@ -101,8 +104,8 @@
           v-for="folder in Object.keys(dirMap).map((el) => {
             return {
               name: el,
-              timestamp: Date.now()
-            }
+              timestamp: Date.now(),
+            };
           })"
           :key="folder.name + '_' + structureId"
         >
@@ -146,14 +149,19 @@
                 class="name whitespace-nowrap text-left text-ellipsis overflow-hidden break-all"
                 style="width: calc(100% - 7rem)"
                 :style="{
-                  width: selectMode ? 'calc(100% - 2rem)' : 'calc(100% - 5rem)'
+                  width: selectMode ? 'calc(100% - 2rem)' : 'calc(100% - 5rem)',
                 }"
               >
                 <div class="w-full overflow-hidden text-ellipsis whitespace-nowrap">
-                  <a :href="(customDomain ? customDomain : endPoint) + item.key" target="_blank" v-show="!selectMode">{{
+                  <a
+                    :href="(customDomain ? customDomain : endPoint) + item.key"
+                    target="_blank"
+                    v-show="!selectMode"
+                    >{{ item.fileName }}</a
+                  >
+                  <label v-show="selectMode" :for="item.key" class="mb-0">{{
                     item.fileName
-                  }}</a>
-                  <label v-show="selectMode" :for="item.key" class="mb-0">{{ item.fileName }}</label>
+                  }}</label>
                 </div>
               </div>
               <div class="actions w-[5rem] shrink-0 text-right" v-show="!selectMode">
@@ -189,406 +197,410 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
-import axios from 'axios'
-import { useStatusStore } from '../store/status'
-import { storeToRefs } from 'pinia'
-import { nanoid } from 'nanoid'
+import { onMounted, ref, watch } from "vue";
+import axios from "axios";
+import { useStatusStore } from "../store/status";
+import { storeToRefs } from "pinia";
+import { nanoid } from "nanoid";
 
-let sort = ref('0')
+let sort = ref("0");
 
 onMounted(() => {
-  if (localStorage.getItem('seeFolderStructure') === '1') {
-    seeFolderStructure.value = true
+  if (localStorage.getItem("seeFolderStructure") === "1") {
+    seeFolderStructure.value = true;
   }
 
-  if (localStorage.getItem('seeFolderStructure') === '0') {
-    seeFolderStructure.value = false
+  if (localStorage.getItem("seeFolderStructure") === "0") {
+    seeFolderStructure.value = false;
   }
-})
+});
 
 watch(sort, function (val) {
-  localStorage.setItem('sort', val)
+  localStorage.setItem("sort", val);
 
-  mapFilesToDir()
-})
+  mapFilesToDir();
+});
 
 function getSortVariables(val) {
-  let sortKey
-  let sortType
+  let sortKey;
+  let sortType;
 
-  if (val === '1') {
-    sortKey = 'uploaded_timestamp'
-    sortType = 'desc'
-  } else if (val === '2') {
-    sortKey = 'uploaded_timestamp'
-    sortType = 'asc'
-  } else if (val === '3') {
-    sortKey = 'size'
-    sortType = 'desc'
-  } else if (val === '4') {
-    sortKey = 'size'
-    sortType = 'asc'
+  if (val === "1") {
+    sortKey = "uploaded_timestamp";
+    sortType = "desc";
+  } else if (val === "2") {
+    sortKey = "uploaded_timestamp";
+    sortType = "asc";
+  } else if (val === "3") {
+    sortKey = "size";
+    sortType = "desc";
+  } else if (val === "4") {
+    sortKey = "size";
+    sortType = "asc";
   }
 
-  return { sortKey, sortType }
+  return { sortKey, sortType };
 }
 
 let sortFileList = function (sortKey, sortType) {
-  let temp = JSON.parse(JSON.stringify(fileList.value))
+  let temp = JSON.parse(JSON.stringify(fileList.value));
   temp.map((el) => {
-    return (el.uploaded_timestamp = new Date(el.uploaded).getTime())
-  })
+    return (el.uploaded_timestamp = new Date(el.uploaded).getTime());
+  });
 
   temp = temp.sort((a, b) => {
-    if (sortType === 'desc') {
-      return b[sortKey] - a[sortKey]
+    if (sortType === "desc") {
+      return b[sortKey] - a[sortKey];
     } else {
-      return a[sortKey] - b[sortKey]
+      return a[sortKey] - b[sortKey];
     }
-  })
+  });
 
-  return temp
-}
+  return temp;
+};
 
-let statusStore = useStatusStore()
-let { uploading, endPointUpdated } = storeToRefs(statusStore)
+let statusStore = useStatusStore();
+let { uploading, endPointUpdated } = storeToRefs(statusStore);
 
-let selectMode = ref(false)
+let selectMode = ref(false);
 
-let endPoint = localStorage.getItem('endPoint')
-let apiKey = localStorage.getItem('apiKey')
-let customDomain = localStorage.getItem('customDomain')
+let endPoint = localStorage.getItem("endPoint");
+let apiKey = localStorage.getItem("apiKey");
+let customDomain = localStorage.getItem("customDomain");
 
 watch(uploading, (newVal) => {
   if (!newVal) {
-    endPoint = localStorage.getItem('endPoint')
-    apiKey = localStorage.getItem('apiKey')
-    customDomain = localStorage.getItem('customDomain')
-    loadData()
+    endPoint = localStorage.getItem("endPoint");
+    apiKey = localStorage.getItem("apiKey");
+    customDomain = localStorage.getItem("customDomain");
+    loadData();
   }
-})
+});
 
 watch(endPointUpdated, (newVal) => {
-  endPoint = localStorage.getItem('endPoint')
-  apiKey = localStorage.getItem('apiKey')
-  customDomain = localStorage.getItem('customDomain')
-  fileList.value = []
-  dirMap.value = {}
-  loadData()
-})
+  endPoint = localStorage.getItem("endPoint");
+  apiKey = localStorage.getItem("apiKey");
+  customDomain = localStorage.getItem("customDomain");
+  fileList.value = [];
+  dirMap.value = {};
+  loadData();
+});
 
-let allFileSize = ref(0)
+let allFileSize = ref(0);
 
 let parseByteSize = function (size) {
-  let units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-  let index = 0
+  let units = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+  let index = 0;
   while (size > 1000) {
-    size /= 1000
-    index++
+    size /= 1000;
+    index++;
   }
-  return `${size.toFixed(2)} ${units[index]}`
-}
+  return `${size.toFixed(2)} ${units[index]}`;
+};
 
-let fileList = ref([])
-let loading = ref(false)
+let fileList = ref([]);
+let loading = ref(false);
 
 function handleFolderSelect(folder) {
-  let files = dirMap.value[folder]
-  let isInputChecked = document.getElementById(folder).checked
+  let files = dirMap.value[folder];
+  let isInputChecked = document.getElementById(folder).checked;
 
   if (isInputChecked) {
     files.forEach((file) => {
-      file.selected = true
-      updateSelectedFiles(file, folder)
-    })
+      file.selected = true;
+      updateSelectedFiles(file, folder);
+    });
   } else {
     files.forEach((file) => {
-      file.selected = false
-      updateSelectedFiles(file, folder)
-    })
+      file.selected = false;
+      updateSelectedFiles(file, folder);
+    });
   }
 }
 
-let mouseOnSelectionCheckbox = ref(false)
+let mouseOnSelectionCheckbox = ref(false);
 
 function updateSelectedFiles(file, folder) {
   if (file.selected) {
-    selectedFiles.value.push(file)
+    selectedFiles.value.push(file);
   } else {
-    selectedFiles.value = selectedFiles.value.filter((item) => item.key !== file.key)
+    selectedFiles.value = selectedFiles.value.filter((item) => item.key !== file.key);
   }
 
   if (folder !== undefined && !mouseOnSelectionCheckbox.value) {
-    let files = dirMap.value[folder]
-    let isAllSelected = files.every((item) => item.selected)
-    document.getElementById(folder).checked = isAllSelected
+    let files = dirMap.value[folder];
+    let isAllSelected = files.every((item) => item.selected);
+    document.getElementById(folder).checked = isAllSelected;
   }
 }
 
 function restoreSortSelection() {
-  let sortFromLocal = localStorage.getItem('sort')
+  let sortFromLocal = localStorage.getItem("sort");
 
   // check local value is valid
-  if (!['0', '1', '2', '3', '4'].includes(sortFromLocal)) {
-    return false
+  if (!["0", "1", "2", "3", "4"].includes(sortFromLocal)) {
+    return false;
   }
 
   if (sortFromLocal) {
-    sort.value = sortFromLocal
+    sort.value = sortFromLocal;
   }
 }
 
-let selectedFiles = ref([])
+let selectedFiles = ref([]);
 
 function deleteSelectedFiles() {
-  let c = confirm('Are you sure to delete these files?')
+  let c = confirm("Are you sure to delete these files?");
 
   if (!c) {
-    return false
+    return false;
   }
 
   selectedFiles.value.forEach((file) => {
     deleteThisFile(file.key, true, {
       callback: () => {
-        selectedFiles.value = selectedFiles.value.filter((item) => item.key !== file.key)
+        selectedFiles.value = selectedFiles.value.filter((item) => item.key !== file.key);
 
         if (selectedFiles.value.length === 0) {
           setTimeout(() => {
-            console.log('All selected files have been deleted.')
-            clearSelection()
-          }, 50)
+            console.log("All selected files have been deleted.");
+            clearSelection();
+          }, 50);
         }
 
         if (fileList.value.length === 0) {
-          selectMode.value = false
+          selectMode.value = false;
         }
-      }
-    })
-  })
+      },
+    });
+  });
 }
 
-const copyButtonText = ref('Copy URLs')
-const copyButtonDisabled = ref(false)
+const copyButtonText = ref("Copy URLs");
+const copyButtonDisabled = ref(false);
 
 function copySelectedFileUrls() {
   // Access selected files using .value
   const fileUrls = selectedFiles.value.map((file) => {
-    const baseUrl = customDomain ? customDomain : endPoint
-    return baseUrl + file.key
-  })
+    const baseUrl = customDomain ? customDomain : endPoint;
+    return baseUrl + file.key;
+  });
 
   // Copy to clipboard
-  const urlString = fileUrls.join('\n')
+  const urlString = fileUrls.join("\n");
   navigator.clipboard
     .writeText(urlString)
     .then(() => {
-      copyButtonText.value = 'Copied!'
-      copyButtonDisabled.value = true
+      copyButtonText.value = "Copied!";
+      copyButtonDisabled.value = true;
       setTimeout(() => {
-        copyButtonText.value = 'Copy URLs'
-        copyButtonDisabled.value = false
-      }, 2000)
+        copyButtonText.value = "Copy URLs";
+        copyButtonDisabled.value = false;
+      }, 2000);
     })
     .catch((err) => {
-      console.error('Failed to copy URLs: ', err)
-    })
+      console.error("Failed to copy URLs: ", err);
+    });
 }
 
 function toggleSelectMode() {
-  selectMode.value = !selectMode.value
-  selectedFiles.value = []
+  selectMode.value = !selectMode.value;
+  selectedFiles.value = [];
 
   if (!selectMode.value) {
-    clearSelection()
+    clearSelection();
   }
 }
 
 function clearSelection() {
-  selectedFiles.value = []
+  selectedFiles.value = [];
 
-  document.querySelectorAll('input[type="checkbox"][name="select_all_for_folder"]').forEach((el) => {
-    el.checked = false
-  })
+  document
+    .querySelectorAll('input[type="checkbox"][name="select_all_for_folder"]')
+    .forEach((el) => {
+      el.checked = false;
+    });
 
-  let folders = Object.keys(dirMap.value)
+  let folders = Object.keys(dirMap.value);
   folders.forEach((folder) => {
-    document.getElementById(folder).checked = false
-    let files = dirMap.value[folder]
+    document.getElementById(folder).checked = false;
+    let files = dirMap.value[folder];
     files.forEach((file) => {
-      file.selected = false
-    })
-  })
+      file.selected = false;
+    });
+  });
 }
 
-let dirMap = ref({})
-let seeFolderStructure = ref(true)
-let reconstructing = ref(false)
+let dirMap = ref({});
+let seeFolderStructure = ref(true);
+let reconstructing = ref(false);
 
 async function parseDirs(file) {
   if (seeFolderStructure.value) {
-    let dirs = file.key.split('/')
+    let dirs = file.key.split("/");
 
-    let fileName = dirs[dirs.length - 1]
+    let fileName = dirs[dirs.length - 1];
 
-    dirs = dirs.slice(0, dirs.length - 1)
+    dirs = dirs.slice(0, dirs.length - 1);
 
-    let dirKey = dirs.join('/') + '/'
+    let dirKey = dirs.join("/") + "/";
 
     let item = {
       fileName: fileName,
-      key: file.key
-    }
+      key: file.key,
+    };
     if (dirMap.value[dirKey]) {
-      dirMap.value[dirKey].push(item)
+      dirMap.value[dirKey].push(item);
     } else {
-      dirMap.value[dirKey] = [item]
+      dirMap.value[dirKey] = [item];
     }
   } else {
     let item = {
       fileName: file.key,
-      key: file.key
-    }
-    if (dirMap.value['/']) {
-      dirMap.value['/'].push(item)
+      key: file.key,
+    };
+    if (dirMap.value["/"]) {
+      dirMap.value["/"].push(item);
     } else {
-      dirMap.value['/'] = [item]
+      dirMap.value["/"] = [item];
     }
   }
 }
 
 async function mapFilesToDir() {
-  dirMap.value = {}
-  reconstructing.value = true
+  dirMap.value = {};
+  reconstructing.value = true;
 
-  let start = Date.now()
+  let start = Date.now();
 
-  let { sortKey, sortType } = getSortVariables(sort.value)
-  let temp = sortFileList(sortKey, sortType)
+  let { sortKey, sortType } = getSortVariables(sort.value);
+  let temp = sortFileList(sortKey, sortType);
 
-  fileList.value = temp
+  fileList.value = temp;
 
   await Promise.all(
     fileList.value.map(async (item) => {
-      await parseDirs(item)
-    })
-  )
+      await parseDirs(item);
+    }),
+  );
 
-  let end = Date.now()
+  let end = Date.now();
 
-  reconstructing.value = false
+  reconstructing.value = false;
 
-  console.log('reconstructed dirMap, took ', end - start, 'ms')
+  console.log("reconstructed dirMap, took ", end - start, "ms");
 }
 
-let structureId = nanoid()
+let structureId = nanoid();
 watch(seeFolderStructure, async () => {
-  structureId = nanoid()
-  localStorage.setItem('seeFolderStructure', seeFolderStructure.value ? '1' : '0')
-  await mapFilesToDir()
-})
+  structureId = nanoid();
+  localStorage.setItem("seeFolderStructure", seeFolderStructure.value ? "1" : "0");
+  await mapFilesToDir();
+});
 
-let deletingKey = ref('')
+let deletingKey = ref("");
 let deleteThisFile = function (key, isBatchDelete = false, options = {}) {
-  let c = true
+  let c = true;
 
   if (!isBatchDelete) {
-    c = confirm('Are you sure to delete this file?')
+    c = confirm("Are you sure to delete this file?");
   }
 
   if (!c) {
-    return false
+    return false;
   }
 
-  deletingKey.value = key
+  deletingKey.value = key;
 
-  let fileName = '/' + key
-  if (endPoint[endPoint.length - 1] === '/') {
-    fileName = key
+  let fileName = "/" + key;
+  if (endPoint[endPoint.length - 1] === "/") {
+    fileName = key;
   }
 
   axios({
-    method: 'delete',
+    method: "delete",
     headers: {
-      'x-api-key': localStorage.getItem('apiKey')
+      "x-api-key": localStorage.getItem("apiKey"),
     },
-    url: endPoint + fileName
+    url: endPoint + fileName,
   })
     .then(async () => {
-      deletingKey.value = ''
-      fileList.value = fileList.value.filter((item) => item.key !== key)
-      await mapFilesToDir()
+      deletingKey.value = "";
+      fileList.value = fileList.value.filter((item) => item.key !== key);
+      await mapFilesToDir();
 
       if (options.callback) {
-        options.callback()
+        options.callback();
       }
     })
     .catch(() => {
-      deletingKey.value = ''
-      alert('Failed to delete file.')
-    })
-}
+      deletingKey.value = "";
+      alert("Failed to delete file.");
+    });
+};
 
 watch(fileList, (newVal) => {
-  allFileSize.value = 0
+  allFileSize.value = 0;
   newVal.forEach((item) => {
-    allFileSize.value += item.size
-  })
+    allFileSize.value += item.size;
+  });
 
-  statusStore.uploadedFiles = newVal
-})
+  statusStore.uploadedFiles = newVal;
+});
 
-let loadDataErrorText = ref('')
-let loadDataErrorStack = ref('')
+let loadDataErrorText = ref("");
+let loadDataErrorStack = ref("");
 
-let globalCursor = ref('')
+let globalCursor = ref("");
 
 async function loadData(action) {
   try {
-    loading.value = true
-    loadDataErrorText.value = ''
-    loadDataErrorStack.value = ''
+    loading.value = true;
+    loadDataErrorText.value = "";
+    loadDataErrorStack.value = "";
 
     if (!endPoint || !apiKey) {
-      loading.value = false
-      return false
+      loading.value = false;
+      return false;
     }
 
     const res = await axios({
-      method: 'patch',
+      method: "patch",
       headers: {
-        'x-api-key': apiKey
+        "x-api-key": apiKey,
       },
-      url: endPoint + (action === 'more' && globalCursor.value ? '?cursor=' + globalCursor.value : '')
-    })
+      url:
+        endPoint +
+        (action === "more" && globalCursor.value ? "?cursor=" + globalCursor.value : ""),
+    });
 
-    if (globalCursor.value && action === 'more') {
-      fileList.value.push(...res.data.objects)
+    if (globalCursor.value && action === "more") {
+      fileList.value.push(...res.data.objects);
     } else {
-      fileList.value = res.data.objects
+      fileList.value = res.data.objects;
     }
 
     if (res.data.truncated && res.data.cursor) {
-      globalCursor.value = res.data.cursor
+      globalCursor.value = res.data.cursor;
     } else {
-      globalCursor.value = ''
+      globalCursor.value = "";
     }
 
-    await restoreSortSelection()
-    await mapFilesToDir()
+    await restoreSortSelection();
+    await mapFilesToDir();
 
-    return true
+    return true;
   } catch (e) {
-    let errorJson = e.toJSON()
-    console.log(errorJson)
-    loadDataErrorText.value = `[${errorJson.message}], please check your endpoint and API key.`
-    loadDataErrorStack.value = errorJson.stack
-    return false
+    let errorJson = e.toJSON();
+    console.log(errorJson);
+    loadDataErrorText.value = `[${errorJson.message}], please check your endpoint and API key.`;
+    loadDataErrorStack.value = errorJson.stack;
+    return false;
   } finally {
-    loading.value = false
-    clearSelection()
+    loading.value = false;
+    clearSelection();
   }
 }
 
-loadData()
+loadData();
 </script>
