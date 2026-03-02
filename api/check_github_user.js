@@ -1,11 +1,10 @@
 // check for GitHub user
-// running on vercel edge
 
 export const config = {
-  runtime: 'edge'
+  runtime: 'edge',
 }
 
-export default async function (req, res) {
+export default async function (req) {
   let endpoint = 'https://api.github.com/user'
   let token = req.headers.get('Authorization')
 

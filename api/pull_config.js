@@ -1,4 +1,5 @@
 // pull config for users
+
 export const config = {
   runtime: 'edge',
 }
@@ -10,7 +11,7 @@ const d1 = new D1({
   key: process.env.D1_KEY
 })
 
-export default async function (req, res) {
+export default async function (req) {
   let token = req.headers.get('Authorization')
 
   if (!token) {
@@ -36,7 +37,7 @@ export default async function (req, res) {
   let user_json = await user.json()
 
   let {success, results, error} = await d1.query('select * from configs where username = ?', [user_json.login])
-  
+
   if (error) {
     return _res.json({
       error

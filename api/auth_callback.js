@@ -1,11 +1,10 @@
 // GitHub oauth callback handler
-// running on vercel edge
 
 export const config = {
   runtime: 'edge',
 }
 
-export default async function (req, res) {
+export default async function (req) {
   let requestUrl = new URL(req.url)
   let query = requestUrl.searchParams
 
@@ -37,27 +36,27 @@ export default async function (req, res) {
 
   let auth_token
 
-	try {
-		auth_token = await fetch('https://github.com/login/oauth/access_token', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Accept': 'application/json'
-			},
-			body: JSON.stringify({
-				client_id: process.env.GITHUB_CLIENT_ID,
-				client_secret: process.env.GITHUB_CLIENT_SECRET,
-				code: code
-			})
-		})
-	} catch (e) {
-		console.log(e)
-	}
+  try {
+    auth_token = await fetch('https://github.com/login/oauth/access_token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        client_id: process.env.GITHUB_CLIENT_ID,
+        client_secret: process.env.GITHUB_CLIENT_SECRET,
+        code: code
+      })
+    })
+  } catch (e) {
+    console.log(e)
+  }
 
   let params = await auth_token.json()
 
-	if(auth_token.status !== 200){
-		return new Response(auth_token.statusText, {
+  if (auth_token.status !== 200) {
+    return new Response(auth_token.statusText, {
       status: auth_token.status,
       headers: {
         'Content-Type': 'application/json'
@@ -67,10 +66,10 @@ export default async function (req, res) {
         detail: auth_token.statusText
       })
     })
-	}
+  }
 
-	if(params.error){
-		return new Response(params.error_description, {
+  if (params.error) {
+    return new Response(params.error_description, {
       status: 400,
       headers: {
         'Content-Type': 'application/json'
@@ -80,7 +79,7 @@ export default async function (req, res) {
         detail: params.error_description
       })
     })
-	}
+  }
 
   return new Response('', {
     status: 307,
@@ -89,4 +88,3 @@ export default async function (req, res) {
     }
   })
 }
-

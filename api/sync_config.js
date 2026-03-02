@@ -1,6 +1,7 @@
 // sync config for users
+
 export const config = {
-  runtime: 'edge'
+  runtime: 'edge',
 }
 
 import D1 from '../utils/d1.class.js'
@@ -35,10 +36,10 @@ export default async function (req) {
   })
 
   if (user.status !== 200) {
-    return res.status(user.status).json({
+    return _res.json({
       message: 'github_error',
       detail: user.statusText
-    })
+    }, user.status)
   }
 
   let user_json = await user.json()
@@ -49,7 +50,7 @@ export default async function (req) {
       'SELECT username FROM configs WHERE username = ?',
       [user_json.login]
     )
-    
+
     let res;
     if (userExists.results && userExists.results.length > 0) {
       // Update existing user
@@ -77,5 +78,5 @@ export default async function (req) {
       message: 'd1_error',
       detail: error.message
     }, 500)
-  }  
+  }
 }

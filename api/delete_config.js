@@ -1,6 +1,7 @@
 // delete config for users
+
 export const config = {
-  runtime: 'edge'
+  runtime: 'edge',
 }
 
 import D1 from '../utils/d1.class.js'
@@ -10,7 +11,7 @@ const d1 = new D1({
   key: process.env.D1_KEY
 })
 
-export default async function (req, res) {
+export default async function (req) {
   let allowedMethods = ['DELETE', 'OPTIONS']
   if (!allowedMethods.includes(req.method)) {
     return _res.json(
