@@ -118,3 +118,6 @@ pre code {
     --font-size: 16px;
   }
 }
+#panel > article:last-child,footer{
+  display:none;
+}
